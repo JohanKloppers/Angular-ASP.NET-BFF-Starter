@@ -1,6 +1,6 @@
 using Starter.Bff.Configuration;
-using Starter.Bff.Proxy;
 using Starter.Bff.Services;
+using Yarp.ReverseProxy.Transforms;
 
 namespace Starter.Bff.Extensions;
 
@@ -24,7 +24,14 @@ public static class ServiceExtensions
 
         services.AddReverseProxy()
             .LoadFromConfig(config.GetSection("ReverseProxy"))
-            .AddTransformFactory<InternalApiKeyTransform>();
+            .AddTransforms(ctx =>
+            {
+                ctx.AddRequestTransform(req =>
+                {
+                    req.ProxyRequest.Headers.TryAddWithoutValidation("X-Internal-Key", apiSettings.InternalKey);
+                    return ValueTask.CompletedTask;
+                });
+            });
 
         return services;
     }

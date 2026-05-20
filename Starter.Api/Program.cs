@@ -1,9 +1,10 @@
+using FluentMigrator.Runner;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Formatting.Compact;
 using Starter.Api.Data;
+using Starter.Api.Data.Stores;
 using Starter.Api.Endpoints;
 using Starter.Api.Middleware;
 using Starter.Api.Models;
@@ -16,8 +17,9 @@ builder.Host.UseSerilog((ctx, config) => config
     .Enrich.FromLogContext()
     .WriteTo.Console(new CompactJsonFormatter()));
 
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
+
+builder.Services.AddSingleton<IDbConnectionFactory>(new NpgsqlConnectionFactory(connectionString));
 
 builder.Services.AddIdentityCore<ApplicationUser>(options =>
 {
@@ -26,7 +28,17 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
     options.Password.RequireNonAlphanumeric = false;
     options.Password.RequireUppercase = false;
     options.User.RequireUniqueEmail = true;
-}).AddEntityFrameworkStores<ApplicationDbContext>();
+})
+.AddRoles<IdentityRole<Guid>>()
+.AddUserStore<ApplicationUserStore>()
+.AddRoleStore<ApplicationRoleStore>();
+
+builder.Services.AddFluentMigratorCore()
+    .ConfigureRunner(runner => runner
+        .AddPostgres()
+        .WithGlobalConnectionString(connectionString)
+        .ScanIn(typeof(Program).Assembly).For.Migrations())
+    .AddLogging(lb => lb.AddFluentMigratorConsole());
 
 builder.Services.AddProblemDetails();
 
@@ -48,8 +60,8 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await db.Database.MigrateAsync();
+    var runner = scope.ServiceProvider.GetRequiredService<IMigrationRunner>();
+    runner.MigrateUp();
 }
 
 if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "Docker")

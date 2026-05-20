@@ -143,3 +143,10 @@ The migration is applied automatically the next time the API starts.
 | `POSTGRES_USER` | PostgreSQL user | `starter` |
 | `POSTGRES_PASSWORD` | PostgreSQL password | `starter_dev_pass` |
 | `API_INTERNAL_KEY` | Shared secret between BFF and API | `changeme-internal-api-key` |
+
+## Reload DB
+
+```
+docker-compose down -v
+docker-compose up --build
+```
