@@ -1,0 +1,8 @@
+{
+    "/api": { "target": "http://localhost:5000", "secure": false },
+    "/login": { "target": "http://localhost:5000", "secure": false },
+    "/logout": { "target": "http://localhost:5000", "secure": false },
+    "/register": { "target": "http://localhost:5000", "secure": false },
+    "/user": { "target": "http://localhost:5000", "secure": false },
+    "/health": { "target": "http://localhost:5000", "secure": false }
+}

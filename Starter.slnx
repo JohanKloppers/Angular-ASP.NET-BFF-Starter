@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Starter.Api/Starter.Api.csproj" />
+  <Project Path="Starter.Bff.Tests/Starter.Bff.Tests.csproj" />
+  <Project Path="Starter.Bff/Starter.Bff.csproj" />
+</Solution>

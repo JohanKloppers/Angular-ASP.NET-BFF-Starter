@@ -1,0 +1,55 @@
+<div class="min-h-screen bg-gray-100 flex flex-col">
+    <app-header [sidebarOpen]="sidebarOpen" (toggleSidebarEvent)="toggleSidebar()"></app-header>
+
+    <div class="flex flex-1 overflow-hidden">
+        <app-sidebar [isOpen]="sidebarOpen" (toggleSidebar)="toggleSidebar()" class="md:block"></app-sidebar>
+
+        <main class="flex-1 p-6 overflow-auto">
+            <div class="max-w-4xl mx-auto">
+                <h1 class="text-2xl font-bold text-gray-900 mb-1">Dashboard</h1>
+                <p class="text-gray-500 mb-6">
+                    Welcome back@if (getClaim('firstName')) {, {{ getClaim('firstName') }}}.
+                </p>
+
+                <!-- Stats -->
+                @if (statsError) {
+                <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-8" role="alert">
+                    Could not load dashboard stats.
+                </div>
+                } @else {
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Total users</p>
+                        <p class="text-3xl font-bold text-gray-900">
+                            {{ stats ? stats.totalUsers : '—' }}
+                        </p>
+                    </div>
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                        <p class="text-sm font-medium text-gray-500 mb-1">Registered today</p>
+                        <p class="text-3xl font-bold text-green-600">
+                            {{ stats ? stats.registeredToday : '—' }}
+                        </p>
+                    </div>
+                </div>
+                }
+
+                <!-- User info card -->
+                @if (user) {
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Your account</h2>
+                    <dl class="space-y-3">
+                        <div class="flex gap-4">
+                            <dt class="w-28 text-sm font-medium text-gray-500">Name</dt>
+                            <dd class="text-sm text-gray-900">{{ getClaim('name') }}</dd>
+                        </div>
+                        <div class="flex gap-4">
+                            <dt class="w-28 text-sm font-medium text-gray-500">Email</dt>
+                            <dd class="text-sm text-gray-900">{{ getClaim('email') }}</dd>
+                        </div>
+                    </dl>
+                </div>
+                }
+            </div>
+        </main>
+    </div>
+</div>
