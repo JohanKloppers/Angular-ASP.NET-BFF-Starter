@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../auth.service';
@@ -10,26 +10,27 @@ import { AuthService } from '../auth.service';
   styleUrl: './login.scss',
 })
 export class Login {
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
   email = '';
   password = '';
-  isLoading = false;
-  error = '';
-  showPassword = false;
-
-  constructor(private authService: AuthService, private router: Router) {}
+  isLoading = signal(false);
+  error = signal('');
+  showPassword = signal(false);
 
   togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
+    this.showPassword.update(v => !v);
   }
 
   login() {
-    this.isLoading = true;
-    this.error = '';
+    this.isLoading.set(true);
+    this.error.set('');
     this.authService.login(this.email, this.password).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: () => {
-        this.error = 'Invalid email or password.';
-        this.isLoading = false;
+        this.error.set('Invalid email or password.');
+        this.isLoading.set(false);
       }
     });
   }

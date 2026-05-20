@@ -4,14 +4,14 @@
     </div>
 
     <div class="flex items-center space-x-4">
-        @if (!isAuthenticated) {
+        @if (!isAuthenticated()) {
         <button (click)="signIn()"
             class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors">
             Sign In
         </button>
         }
 
-        @if (isAuthenticated) {
+        @if (isAuthenticated()) {
         <div class="relative user-menu-container">
             <button (click)="toggleUserMenu()"
                 class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center cursor-pointer hover:bg-gray-400 transition-colors">
@@ -21,7 +21,7 @@
                 </svg>
             </button>
 
-            @if (isUserMenuOpen) {
+            @if (isUserMenuOpen()) {
             <div class="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg border border-gray-200 z-50">
                 <div class="py-1">
                     <div class="border-t border-gray-100"></div>

@@ -1,8 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { catchError, EMPTY } from 'rxjs';
 import { Header } from '../header/header';
 import { Sidebar } from '../sidebar/sidebar';
-import { AuthService, UserInfo } from '../auth.service';
-import { DashboardService, DashboardStats } from '../dashboard/dashboard.service';
+import { AuthService } from '../auth.service';
+import { DashboardService } from '../dashboard/dashboard.service';
 
 @Component({
   selector: 'app-home',
@@ -10,30 +12,31 @@ import { DashboardService, DashboardStats } from '../dashboard/dashboard.service
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })
-export class Home implements OnInit {
-  sidebarOpen = false;
-  user: UserInfo | null = null;
-  stats: DashboardStats | null = null;
-  statsError = false;
+export class Home {
+  private authService = inject(AuthService);
 
-  constructor(
-    private authService: AuthService,
-    private dashboardService: DashboardService
-  ) {}
+  sidebarOpen = signal(false);
 
-  ngOnInit() {
-    this.authService.getUser().subscribe({ next: u => this.user = u });
-    this.dashboardService.getStats().subscribe({
-      next: s => this.stats = s,
-      error: () => this.statsError = true,
-    });
-  }
+  user = toSignal(this.authService.getUser());
+
+  private readonly _statsError = signal(false);
+  readonly statsError = this._statsError.asReadonly();
+
+  stats = toSignal(
+    inject(DashboardService).getStats().pipe(
+      catchError(() => {
+        this._statsError.set(true);
+        return EMPTY;
+      })
+    )
+  );
 
   getClaim(type: string): string {
-    return this.user ? this.authService.getClaim(this.user, type) : '';
+    const u = this.user();
+    return u ? this.authService.getClaim(u, type) : '';
   }
 
   toggleSidebar() {
-    this.sidebarOpen = !this.sidebarOpen;
+    this.sidebarOpen.update(v => !v);
   }
 }

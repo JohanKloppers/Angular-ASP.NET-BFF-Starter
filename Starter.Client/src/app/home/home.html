@@ -1,8 +1,8 @@
 <div class="min-h-screen bg-gray-100 flex flex-col">
-    <app-header [sidebarOpen]="sidebarOpen" (toggleSidebarEvent)="toggleSidebar()"></app-header>
+    <app-header [sidebarOpen]="sidebarOpen()" (toggleSidebarEvent)="toggleSidebar()"></app-header>
 
     <div class="flex flex-1 overflow-hidden">
-        <app-sidebar [isOpen]="sidebarOpen" (toggleSidebar)="toggleSidebar()" class="md:block"></app-sidebar>
+        <app-sidebar [isOpen]="sidebarOpen()" (toggleSidebar)="toggleSidebar()" class="md:block"></app-sidebar>
 
         <main class="flex-1 p-6 overflow-auto">
             <div class="max-w-4xl mx-auto">
@@ -12,7 +12,7 @@
                 </p>
 
                 <!-- Stats -->
-                @if (statsError) {
+                @if (statsError()) {
                 <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-8" role="alert">
                     Could not load dashboard stats.
                 </div>
@@ -21,20 +21,20 @@
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <p class="text-sm font-medium text-gray-500 mb-1">Total users</p>
                         <p class="text-3xl font-bold text-gray-900">
-                            {{ stats ? stats.totalUsers : '—' }}
+                            {{ stats() ? stats()!.totalUsers : '—' }}
                         </p>
                     </div>
                     <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                         <p class="text-sm font-medium text-gray-500 mb-1">Registered today</p>
                         <p class="text-3xl font-bold text-green-600">
-                            {{ stats ? stats.registeredToday : '—' }}
+                            {{ stats() ? stats()!.registeredToday : '—' }}
                         </p>
                     </div>
                 </div>
                 }
 
                 <!-- User info card -->
-                @if (user) {
+                @if (user()) {
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                     <h2 class="text-lg font-semibold text-gray-900 mb-4">Your account</h2>
                     <dl class="space-y-3">

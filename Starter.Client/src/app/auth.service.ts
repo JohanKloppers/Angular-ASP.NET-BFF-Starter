@@ -15,7 +15,7 @@ export interface UserInfo {
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
-    private isLoadingSubject = new BehaviorSubject<boolean>(false);
+    private isLoadingSubject = new BehaviorSubject<boolean>(true);
 
     public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
     public isLoading$ = this.isLoadingSubject.asObservable();
@@ -47,7 +47,6 @@ export class AuthService {
     }
 
     checkAuthStatus(): void {
-        if (this.isLoadingSubject.value) return;
         this.isLoadingSubject.next(true);
         this.getUser().subscribe({
             next: () => {

@@ -1,8 +1,7 @@
-import { Component, Input, Output, EventEmitter, HostListener, OnInit, OnDestroy } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { Component, Input, Output, EventEmitter, HostListener, inject, signal } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { RouterModule, Router } from '@angular/router';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
-import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -10,32 +9,22 @@ import { Subscription } from 'rxjs';
   templateUrl: './header.html',
   styleUrl: './header.scss',
 })
-export class Header implements OnInit, OnDestroy {
+export class Header {
   @Input() sidebarOpen = false;
   @Output() toggleSidebarEvent = new EventEmitter<void>();
 
-  isUserMenuOpen = false;
-  isAuthenticated = false;
-  private authSubscription: Subscription = new Subscription();
+  private authService = inject(AuthService);
+  private router = inject(Router);
 
-  constructor(private authService: AuthService, private router: Router) {}
-
-  ngOnInit() {
-    this.authSubscription = this.authService.isAuthenticated$.subscribe(
-      isAuthenticated => this.isAuthenticated = isAuthenticated
-    );
-  }
-
-  ngOnDestroy() {
-    this.authSubscription.unsubscribe();
-  }
+  isAuthenticated = toSignal(this.authService.isAuthenticated$, { initialValue: false });
+  isUserMenuOpen = signal(false);
 
   toggleSidebar() {
     this.toggleSidebarEvent.emit();
   }
 
   toggleUserMenu() {
-    this.isUserMenuOpen = !this.isUserMenuOpen;
+    this.isUserMenuOpen.update(v => !v);
   }
 
   signIn() {
@@ -53,7 +42,7 @@ export class Header implements OnInit, OnDestroy {
   onDocumentClick(event: Event) {
     const target = event.target as HTMLElement;
     if (!target.closest('.user-menu-container')) {
-      this.isUserMenuOpen = false;
+      this.isUserMenuOpen.set(false);
     }
   }
 }
